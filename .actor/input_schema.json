@@ -1,0 +1,70 @@
+{
+    "title": "Odds-API.io Sports Odds",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "apiKey": {
+            "title": "Odds-API.io API key",
+            "type": "string",
+            "description": "Your Odds-API.io API key. Get one at https://odds-api.io/pricing",
+            "editor": "textfield",
+            "isSecret": true
+        },
+        "mode": {
+            "title": "Mode",
+            "type": "string",
+            "description": "What to fetch: events (fixtures and scores), odds (prices per bookmaker and market) or valueBets (prices above a fair-odds estimate).",
+            "editor": "select",
+            "enum": ["events", "odds", "valueBets"],
+            "enumTitles": ["Events", "Odds", "Value bets"],
+            "default": "events"
+        },
+        "sport": {
+            "title": "Sport",
+            "type": "string",
+            "description": "Sport slug, for example football, basketball, tennis, esports.",
+            "editor": "textfield",
+            "default": "football"
+        },
+        "league": {
+            "title": "League",
+            "type": "string",
+            "description": "Optional league slug, for example england-premier-league.",
+            "editor": "textfield"
+        },
+        "bookmakers": {
+            "title": "Bookmakers",
+            "type": "string",
+            "description": "Comma-separated bookmaker names, for example Bet365,Unibet. Required for odds and valueBets modes. Must be bookmakers selected on your plan.",
+            "editor": "textfield"
+        },
+        "markets": {
+            "title": "Markets",
+            "type": "string",
+            "description": "Optional comma-separated market names for odds mode, for example ML,Spread,Totals.",
+            "editor": "textfield"
+        },
+        "eventIds": {
+            "title": "Event IDs",
+            "type": "array",
+            "description": "Optional event IDs. When set, events and odds modes fetch these events instead of listing by sport and league.",
+            "editor": "stringList"
+        },
+        "status": {
+            "title": "Event status",
+            "type": "string",
+            "description": "Status filter when listing events: pending, live, settled, cancelled, or a comma-separated list.",
+            "editor": "textfield",
+            "default": "pending"
+        },
+        "maxEvents": {
+            "title": "Max events",
+            "type": "integer",
+            "description": "Maximum number of events to list in events and odds modes.",
+            "minimum": 1,
+            "maximum": 5000,
+            "default": 20
+        }
+    },
+    "required": ["apiKey", "mode"]
+}

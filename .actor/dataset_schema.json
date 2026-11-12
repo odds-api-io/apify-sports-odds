@@ -1,0 +1,64 @@
+{
+    "actorSpecification": 1,
+    "fields": {},
+    "views": {
+        "events": {
+            "title": "Events",
+            "transformation": {
+                "fields": ["id", "sport", "league", "home", "away", "date", "status", "scores"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "id": { "label": "Event ID", "format": "number" },
+                    "sport": { "label": "Sport", "format": "text" },
+                    "league": { "label": "League", "format": "text" },
+                    "home": { "label": "Home", "format": "text" },
+                    "away": { "label": "Away", "format": "text" },
+                    "date": { "label": "Start", "format": "date" },
+                    "status": { "label": "Status", "format": "text" },
+                    "scores": { "label": "Scores", "format": "object" }
+                }
+            }
+        },
+        "odds": {
+            "title": "Odds",
+            "transformation": {
+                "fields": ["eventId", "home", "away", "date", "bookmaker", "market", "updatedAt", "odds", "url"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "eventId": { "label": "Event ID", "format": "number" },
+                    "home": { "label": "Home", "format": "text" },
+                    "away": { "label": "Away", "format": "text" },
+                    "date": { "label": "Start", "format": "date" },
+                    "bookmaker": { "label": "Bookmaker", "format": "text" },
+                    "market": { "label": "Market", "format": "text" },
+                    "updatedAt": { "label": "Updated", "format": "date" },
+                    "odds": { "label": "Odds", "format": "array" },
+                    "url": { "label": "Link", "format": "link" }
+                }
+            }
+        },
+        "valueBets": {
+            "title": "Value bets",
+            "transformation": {
+                "fields": ["eventId", "event", "bookmaker", "market", "betSide", "expectedValue", "bookmakerOdds", "firstSeenAt"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "eventId": { "label": "Event ID", "format": "number" },
+                    "event": { "label": "Event", "format": "object" },
+                    "bookmaker": { "label": "Bookmaker", "format": "text" },
+                    "market": { "label": "Market", "format": "object" },
+                    "betSide": { "label": "Side", "format": "text" },
+                    "expectedValue": { "label": "Expected value", "format": "number" },
+                    "bookmakerOdds": { "label": "Bookmaker odds", "format": "object" },
+                    "firstSeenAt": { "label": "First seen", "format": "date" }
+                }
+            }
+        }
+    }
+}

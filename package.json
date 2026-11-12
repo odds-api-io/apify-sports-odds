@@ -1,0 +1,22 @@
+{
+    "name": "sports-odds",
+    "version": "0.1.0",
+    "description": "Apify Actor for Odds-API.io: sports events, bookmaker odds and value bets.",
+    "type": "module",
+    "main": "src/main.js",
+    "engines": {
+        "node": ">=20"
+    },
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "apify": "^3.7.2"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/odds-api-io/apify-sports-odds.git"
+    },
+    "homepage": "https://odds-api.io"
+}

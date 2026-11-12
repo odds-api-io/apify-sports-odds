@@ -1,0 +1,13 @@
+{
+    "actorSpecification": 1,
+    "name": "sports-odds",
+    "title": "Odds-API.io Sports Odds",
+    "description": "Fetch sports events, bookmaker odds and value bets from 450+ bookmakers across 34 sports with your Odds-API.io key.",
+    "version": "0.1",
+    "buildTag": "latest",
+    "input": "./input_schema.json",
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    },
+    "dockerfile": "../Dockerfile"
+}
