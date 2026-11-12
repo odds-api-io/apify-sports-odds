@@ -1,0 +1,12 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Odds-API.io Sports Odds output",
+    "properties": {
+        "results": {
+            "type": "string",
+            "title": "Results",
+            "description": "Events, odds rows or value bets, depending on the selected mode.",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
