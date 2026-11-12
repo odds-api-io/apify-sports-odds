@@ -144,6 +144,11 @@ async function runValueBets(input) {
     return rows;
 }
 
+const EXAMPLE_ROWS = [
+    { example: true, eventId: 'example-1', sport: 'football', league: 'england-premier-league', home: 'Home Team', away: 'Away Team', bookmaker: 'Bet365', market: 'ML', home_odds: '2.10', draw_odds: '3.40', away_odds: '3.60', note: 'Example row. Add your Odds-API.io apiKey for live data.' },
+    { example: true, eventId: 'example-1', sport: 'football', league: 'england-premier-league', home: 'Home Team', away: 'Away Team', bookmaker: 'Unibet', market: 'ML', home_odds: '2.05', draw_odds: '3.50', away_odds: '3.70', note: 'Example row. Add your Odds-API.io apiKey for live data.' },
+];
+
 await Actor.init();
 
 try {
@@ -160,7 +165,11 @@ try {
         maxEvents: Number.isInteger(raw.maxEvents) && raw.maxEvents > 0 ? raw.maxEvents : 20,
     };
 
-    if (!input.apiKey) throw new ApiError('The apiKey input is required. Get an Odds-API.io key at https://odds-api.io/pricing');
+    if (!input.apiKey) {
+        log.warning('No apiKey given, so this run saves example rows only. Add your Odds-API.io key (https://odds-api.io/pricing) to get live data.');
+        await Actor.pushData(EXAMPLE_ROWS);
+        await Actor.exit('Saved example rows. Add an apiKey to fetch live data.');
+    }
     if (!['events', 'odds', 'valueBets'].includes(input.mode)) throw new ApiError(`Unknown mode "${input.mode}". Use events, odds or valueBets.`);
     if (input.mode !== 'events' && !input.bookmakers.length) throw new ApiError(`The bookmakers input is required for ${input.mode} mode, for example "Bet365,Unibet".`);
 

@@ -6,7 +6,7 @@
         "apiKey": {
             "title": "Odds-API.io API key",
             "type": "string",
-            "description": "Your Odds-API.io API key. Get one at https://odds-api.io/pricing",
+            "description": "Your Odds-API.io API key. Get one at https://odds-api.io/pricing. Without a key the run saves two example rows.",
             "editor": "textfield",
             "isSecret": true
         },
@@ -66,5 +66,5 @@
             "default": 20
         }
     },
-    "required": ["apiKey", "mode"]
+    "required": ["mode"]
 }

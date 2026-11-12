@@ -22,7 +22,7 @@ The Actor itself is free to run. You bring your own Odds-API.io API key, and req
 
 | Field | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `apiKey` | string (secret) | yes | | Your Odds-API.io API key. |
+| `apiKey` | string (secret) | no | | Your Odds-API.io API key. Without it the run saves two example rows. |
 | `mode` | `events`, `odds` or `valueBets` | yes | `events` | What to fetch. |
 | `sport` | string | no | `football` | Sport slug, for example `football`, `basketball`, `tennis`, `esports`. |
 | `league` | string | no | | League slug, for example `england-premier-league`. |
