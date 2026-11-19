@@ -1,6 +1,6 @@
 # Odds-API.io Sports Odds
 
-Pull sports events, bookmaker odds and value bets from [Odds-API.io](https://odds-api.io) into an Apify dataset. Odds-API.io covers 450+ bookmakers across 34 sports, pre-match and in-play, with fast real-time updates.
+Pull sports events, bookmaker odds and value bets from [Odds-API.io](https://odds-api.io) into an Apify dataset. Odds-API.io covers 500+ bookmakers across 34 sports, pre-match and in-play, with fast real-time updates.
 
 Export the results as JSON, CSV or Excel, schedule runs, or connect them to Google Sheets, Make, Zapier and webhooks through Apify integrations.
 
