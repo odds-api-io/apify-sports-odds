@@ -6,65 +6,76 @@
         "apiKey": {
             "title": "Odds-API.io API key",
             "type": "string",
-            "description": "Your Odds-API.io API key. Get one at https://odds-api.io/pricing. Without a key the run saves two example rows.",
+            "description": "Your Odds-API.io API key. Get one at https://odds-api.io/pricing. Without a key the run saves three example rows.",
             "editor": "textfield",
             "isSecret": true
-        },
-        "mode": {
-            "title": "Mode",
-            "type": "string",
-            "description": "What to fetch: events (fixtures and scores), odds (prices per bookmaker and market) or valueBets (prices above a fair-odds estimate).",
-            "editor": "select",
-            "enum": ["events", "odds", "valueBets"],
-            "enumTitles": ["Events", "Odds", "Value bets"],
-            "default": "events"
         },
         "sport": {
             "title": "Sport",
             "type": "string",
-            "description": "Sport slug, for example football, basketball, tennis, esports.",
+            "description": "Sport slug, for example football, basketball, tennis, ice-hockey, esports. Full list: https://api.odds-api.io/v3/sports",
             "editor": "textfield",
             "default": "football"
         },
         "league": {
             "title": "League",
             "type": "string",
-            "description": "Optional league slug, for example england-premier-league.",
+            "description": "Optional league slug, for example england-premier-league or usa-nba. Leave empty for all leagues of the sport.",
             "editor": "textfield"
         },
         "bookmakers": {
             "title": "Bookmakers",
-            "type": "string",
-            "description": "Comma-separated bookmaker names, for example Bet365,Unibet. Required for odds and valueBets modes. Must be bookmakers selected on your plan.",
-            "editor": "textfield"
+            "type": "array",
+            "description": "Bookmaker names as listed at https://api.odds-api.io/v3/bookmakers, for example Bet365, Unibet, DraftKings. Use bookmakers selected on your plan.",
+            "editor": "stringList",
+            "prefill": ["Bet365", "Unibet"],
+            "uniqueItems": true
         },
         "markets": {
             "title": "Markets",
-            "type": "string",
-            "description": "Optional comma-separated market names for odds mode, for example ML,Spread,Totals.",
-            "editor": "textfield"
-        },
-        "eventIds": {
-            "title": "Event IDs",
             "type": "array",
-            "description": "Optional event IDs. When set, events and odds modes fetch these events instead of listing by sport and league.",
-            "editor": "stringList"
+            "description": "Market names, for example ML, Spread, Totals, Player Props, Both Teams To Score, Correct Score. Leave empty for every market the bookmaker offers.",
+            "editor": "stringList",
+            "prefill": ["ML", "Spread", "Totals"],
+            "uniqueItems": true
         },
         "status": {
             "title": "Event status",
             "type": "string",
-            "description": "Status filter when listing events: pending, live, settled, cancelled, or a comma-separated list.",
-            "editor": "textfield",
+            "description": "Which events to fetch: pre-match (pending), in-play (live) or both.",
+            "editor": "select",
+            "enum": ["pending", "live", "pending,live"],
+            "enumTitles": ["Pre-match", "Live", "Pre-match and live"],
             "default": "pending"
+        },
+        "includeClosingLines": {
+            "title": "Include closing lines",
+            "type": "boolean",
+            "description": "Also save the closing odds of events that finished in the last N days (see Closing lines window) for the same sport, leagues, bookmakers and markets. Rows are marked closingLine = true. Uses /historical/closing-lines, which needs a paid Odds-API.io plan.",
+            "default": false
+        },
+        "closingLinesDays": {
+            "title": "Closing lines window (days)",
+            "type": "integer",
+            "description": "How many past days of settled events to pull closing lines for. Only used when Include closing lines is on.",
+            "minimum": 1,
+            "maximum": 366,
+            "default": 7
         },
         "maxEvents": {
             "title": "Max events",
             "type": "integer",
-            "description": "Maximum number of events to list in events and odds modes.",
+            "description": "Maximum number of events to fetch odds for. Also caps the number of settled events when closing lines are included.",
             "minimum": 1,
             "maximum": 5000,
             "default": 20
+        },
+        "eventIds": {
+            "title": "Event IDs",
+            "type": "array",
+            "description": "Optional Odds-API.io event IDs. When set, the Actor fetches odds for exactly these events instead of listing by sport, league and status.",
+            "editor": "stringList"
         }
     },
-    "required": ["mode"]
+    "required": []
 }

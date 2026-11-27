@@ -1,62 +1,81 @@
 {
     "actorSpecification": 1,
-    "fields": {},
-    "views": {
-        "events": {
-            "title": "Events",
-            "transformation": {
-                "fields": ["id", "sport", "league", "home", "away", "date", "status", "scores"]
-            },
-            "display": {
-                "component": "table",
-                "properties": {
-                    "id": { "label": "Event ID", "format": "number" },
-                    "sport": { "label": "Sport", "format": "text" },
-                    "league": { "label": "League", "format": "text" },
-                    "home": { "label": "Home", "format": "text" },
-                    "away": { "label": "Away", "format": "text" },
-                    "date": { "label": "Start", "format": "date" },
-                    "status": { "label": "Status", "format": "text" },
-                    "scores": { "label": "Scores", "format": "object" }
-                }
-            }
+    "fields": {
+        "type": "object",
+        "properties": {
+            "eventId": { "type": "integer", "description": "Odds-API.io event ID" },
+            "sport": { "type": ["string", "null"], "description": "Sport slug" },
+            "sportName": { "type": ["string", "null"] },
+            "league": { "type": ["string", "null"], "description": "League slug" },
+            "leagueName": { "type": ["string", "null"] },
+            "home": { "type": ["string", "null"] },
+            "away": { "type": ["string", "null"] },
+            "homeId": { "type": ["integer", "null"], "description": "Odds-API.io participant ID of the home side" },
+            "awayId": { "type": ["integer", "null"] },
+            "startTime": { "type": ["string", "null"], "description": "Scheduled start, RFC 3339 UTC" },
+            "status": { "type": ["string", "null"], "description": "pending, live or settled" },
+            "bookmaker": { "type": "string" },
+            "market": { "type": "string", "description": "Market name, for example ML, Spread, Totals, Player Props" },
+            "label": { "type": ["string", "null"], "description": "Player, score or outcome label when the market has one" },
+            "line": { "type": ["number", "null"], "description": "Handicap or total line when the market has one" },
+            "selection": { "type": "string", "description": "home, draw, away, over, under, yes, no, 1X, 12, X2, or the label for outright-style markets" },
+            "price": { "type": "number", "description": "Decimal odds" },
+            "closingLine": { "type": "boolean", "description": "true when the row is the closing line of a settled event" },
+            "updatedAt": { "type": ["string", "null"], "description": "When the bookmaker market was last written" },
+            "bookmakerUrl": { "type": ["string", "null"], "description": "Event page at the bookmaker when known" }
         },
-        "odds": {
-            "title": "Odds",
+        "required": ["eventId", "bookmaker", "market", "selection", "price", "closingLine"]
+    },
+    "views": {
+        "overview": {
+            "title": "Overview",
             "transformation": {
-                "fields": ["eventId", "home", "away", "date", "bookmaker", "market", "updatedAt", "odds", "url"]
+                "fields": ["home", "away", "startTime", "bookmaker", "market", "label", "line", "selection", "price", "closingLine", "updatedAt"]
             },
             "display": {
                 "component": "table",
                 "properties": {
-                    "eventId": { "label": "Event ID", "format": "number" },
                     "home": { "label": "Home", "format": "text" },
                     "away": { "label": "Away", "format": "text" },
-                    "date": { "label": "Start", "format": "date" },
+                    "startTime": { "label": "Start", "format": "date" },
                     "bookmaker": { "label": "Bookmaker", "format": "text" },
                     "market": { "label": "Market", "format": "text" },
-                    "updatedAt": { "label": "Updated", "format": "date" },
-                    "odds": { "label": "Odds", "format": "array" },
-                    "url": { "label": "Link", "format": "link" }
+                    "label": { "label": "Label", "format": "text" },
+                    "line": { "label": "Line", "format": "number" },
+                    "selection": { "label": "Selection", "format": "text" },
+                    "price": { "label": "Price", "format": "number" },
+                    "closingLine": { "label": "Closing", "format": "boolean" },
+                    "updatedAt": { "label": "Updated", "format": "date" }
                 }
             }
         },
-        "valueBets": {
-            "title": "Value bets",
+        "full": {
+            "title": "All fields",
             "transformation": {
-                "fields": ["eventId", "event", "bookmaker", "market", "betSide", "expectedValue", "bookmakerOdds", "firstSeenAt"]
+                "fields": ["eventId", "sport", "league", "leagueName", "home", "away", "homeId", "awayId", "startTime", "status", "bookmaker", "market", "label", "line", "selection", "price", "closingLine", "updatedAt", "bookmakerUrl"]
             },
             "display": {
                 "component": "table",
                 "properties": {
                     "eventId": { "label": "Event ID", "format": "number" },
-                    "event": { "label": "Event", "format": "object" },
+                    "sport": { "label": "Sport", "format": "text" },
+                    "league": { "label": "League", "format": "text" },
+                    "leagueName": { "label": "League name", "format": "text" },
+                    "home": { "label": "Home", "format": "text" },
+                    "away": { "label": "Away", "format": "text" },
+                    "homeId": { "label": "Home ID", "format": "number" },
+                    "awayId": { "label": "Away ID", "format": "number" },
+                    "startTime": { "label": "Start", "format": "date" },
+                    "status": { "label": "Status", "format": "text" },
                     "bookmaker": { "label": "Bookmaker", "format": "text" },
-                    "market": { "label": "Market", "format": "object" },
-                    "betSide": { "label": "Side", "format": "text" },
-                    "expectedValue": { "label": "Expected value", "format": "number" },
-                    "bookmakerOdds": { "label": "Bookmaker odds", "format": "object" },
-                    "firstSeenAt": { "label": "First seen", "format": "date" }
+                    "market": { "label": "Market", "format": "text" },
+                    "label": { "label": "Label", "format": "text" },
+                    "line": { "label": "Line", "format": "number" },
+                    "selection": { "label": "Selection", "format": "text" },
+                    "price": { "label": "Price", "format": "number" },
+                    "closingLine": { "label": "Closing", "format": "boolean" },
+                    "updatedAt": { "label": "Updated", "format": "date" },
+                    "bookmakerUrl": { "label": "Bookmaker link", "format": "link" }
                 }
             }
         }

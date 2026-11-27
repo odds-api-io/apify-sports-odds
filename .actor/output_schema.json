@@ -2,10 +2,10 @@
     "actorOutputSchemaVersion": 1,
     "title": "Odds-API.io Sports Odds output",
     "properties": {
-        "results": {
+        "odds": {
             "type": "string",
-            "title": "Results",
-            "description": "Events, odds rows or value bets, depending on the selected mode.",
+            "title": "Odds rows",
+            "description": "One row per event, bookmaker, market and selection, with closing lines marked closingLine = true.",
             "template": "{{links.apiDefaultDatasetUrl}}/items"
         }
     }

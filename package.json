@@ -1,7 +1,7 @@
 {
     "name": "sports-odds",
-    "version": "0.1.0",
-    "description": "Apify Actor for Odds-API.io: sports events, bookmaker odds and value bets.",
+    "version": "0.2.0",
+    "description": "Official Apify Actor for Odds-API.io: pre-match, live and closing odds from 500+ bookmakers across 37 sports.",
     "type": "module",
     "main": "src/main.js",
     "engines": {
@@ -11,7 +11,7 @@
         "start": "node src/main.js"
     },
     "dependencies": {
-        "apify": "^3.7.2"
+        "apify": "^3.8.0"
     },
     "license": "MIT",
     "repository": {
