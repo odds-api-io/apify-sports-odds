@@ -1,6 +1,6 @@
 {
     "name": "sports-odds",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Official Apify Actor for Odds-API.io: pre-match, live and closing odds from 500+ bookmakers across 37 sports.",
     "type": "module",
     "main": "src/main.js",

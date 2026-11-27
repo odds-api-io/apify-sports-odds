@@ -64,9 +64,7 @@ async function apiGet(path, params, apiKey) {
 async function listEvents(input) {
     if (input.eventIds.length) {
         const events = [];
-        for (const id of input.eventIds.slice(0, input.maxEvents)) {
-            events.push(await apiGet(`/events/${encodeURIComponent(id)}`, {}, input.apiKey));
-        }
+        for (const id of input.eventIds) events.push(await apiGet(`/events/${encodeURIComponent(id)}`, {}, input.apiKey));
         return events;
     }
     const events = await apiGet('/events', {
@@ -186,6 +184,100 @@ async function saveClosingLines(input, events) {
     return rows;
 }
 
+const eventRow = (e) => ({
+    id: e.id,
+    sport: e.sport?.slug ?? e.sport,
+    league: e.league?.slug ?? e.league,
+    leagueName: e.league?.name,
+    home: e.home,
+    away: e.away,
+    homeId: e.homeId,
+    awayId: e.awayId,
+    date: e.date,
+    status: e.status,
+    scores: e.scores,
+    clock: e.clock,
+    esports: e.esports,
+});
+
+async function runEvents(input) {
+    const events = await listEvents(input);
+    await Actor.pushData(events.map(eventRow));
+    return events.length;
+}
+
+async function runOdds(input) {
+    const ids = input.eventIds.length
+        ? input.eventIds
+        : (await listEvents(input)).map((e) => e.id);
+    if (!ids.length) return 0;
+
+    let rows = 0;
+    for (const batch of chunk(ids, MULTI_BATCH_SIZE)) {
+        const events = await apiGet('/odds/multi', {
+            eventIds: batch.join(','),
+            bookmakers: input.bookmakers.join(','),
+            markets: input.markets.join(','),
+        }, input.apiKey);
+
+        const out = [];
+        for (const e of events) {
+            for (const [bookmaker, markets] of Object.entries(e.bookmakers || {})) {
+                for (const market of markets) {
+                    out.push({
+                        eventId: e.id,
+                        sport: e.sport?.slug ?? e.sport,
+                        league: e.league?.slug ?? e.league,
+                        home: e.home,
+                        away: e.away,
+                        date: e.date,
+                        status: e.status,
+                        bookmaker,
+                        market: market.name,
+                        updatedAt: market.updatedAt,
+                        odds: market.odds,
+                        url: e.urls?.[bookmaker],
+                    });
+                }
+            }
+        }
+        await Actor.pushData(out);
+        rows += out.length;
+    }
+    return rows;
+}
+
+async function runValueBets(input) {
+    let rows = 0;
+    for (const bookmaker of input.bookmakers) {
+        const bets = await apiGet('/value-bets', {
+            bookmaker,
+            sport: input.sport,
+            league: input.league,
+            includeEventDetails: true,
+        }, input.apiKey);
+        await Actor.pushData(bets.map((b) => ({ ...b, bookmaker: b.bookmaker || bookmaker })));
+        rows += bets.length;
+    }
+    return rows;
+}
+
+async function runRows(input) {
+    const events = await listEvents(input);
+    log.info(`Found ${events.length} events.`);
+    const currentRows = events.length ? await saveCurrentOdds(input, events) : 0;
+    log.info(`Saved ${currentRows} current odds rows.`);
+
+    let closingRows = 0;
+    if (input.includeClosingLines) {
+        closingRows = await saveClosingLines(input, events);
+        log.info(`Saved ${closingRows} closing line rows from the last ${input.closingLinesDays} days.`);
+    }
+    return currentRows + closingRows;
+}
+
+const MODES = { rows: runRows, events: runEvents, odds: runOdds, valueBets: runValueBets };
+
 const EXAMPLE_ROWS = [
     { example: true, eventId: 0, sport: 'football', league: 'england-premier-league', home: 'Home Team', away: 'Away Team', startTime: '2026-01-01T15:00:00Z', status: 'pending', bookmaker: 'Bet365', market: 'ML', label: null, line: null, selection: 'home', price: 2.1, closingLine: false, updatedAt: '2026-01-01T10:00:00Z', note: 'Example row. Add your Odds-API.io apiKey for live data.' },
     { example: true, eventId: 0, sport: 'football', league: 'england-premier-league', home: 'Home Team', away: 'Away Team', startTime: '2026-01-01T15:00:00Z', status: 'pending', bookmaker: 'Bet365', market: 'ML', label: null, line: null, selection: 'draw', price: 3.4, closingLine: false, updatedAt: '2026-01-01T10:00:00Z', note: 'Example row. Add your Odds-API.io apiKey for live data.' },
@@ -198,15 +290,16 @@ try {
     const raw = (await Actor.getInput()) || {};
     const input = {
         apiKey: String(raw.apiKey || '').trim(),
+        mode: String(raw.mode || 'rows').trim(),
         sport: String(raw.sport || 'football').trim(),
         league: String(raw.league || '').trim(),
         bookmakers: cleanList(raw.bookmakers),
         markets: cleanList(raw.markets),
         eventIds: cleanList(raw.eventIds),
-        status: ['pending', 'live', 'pending,live'].includes(raw.status) ? raw.status : 'pending',
+        status: String(raw.status || 'pending').trim(),
         includeClosingLines: raw.includeClosingLines === true,
         closingLinesDays: Number.isInteger(raw.closingLinesDays) && raw.closingLinesDays > 0 ? Math.min(raw.closingLinesDays, 366) : 7,
-        maxEvents: Number.isInteger(raw.maxEvents) && raw.maxEvents > 0 ? Math.min(raw.maxEvents, 5000) : 20,
+        maxEvents: Number.isInteger(raw.maxEvents) && raw.maxEvents > 0 ? raw.maxEvents : 20,
     };
 
     if (!input.apiKey) {
@@ -214,23 +307,14 @@ try {
         await Actor.pushData(EXAMPLE_ROWS);
         await Actor.exit('Saved example rows. Add an apiKey to fetch live data.');
     }
-    if (!input.bookmakers.length) throw new ApiError('The bookmakers input is required, for example ["Bet365", "Unibet"]. Use bookmakers selected on your plan.');
+    if (!MODES[input.mode]) throw new ApiError(`Unknown mode "${input.mode}". Use rows, events, odds or valueBets.`);
+    if (input.mode !== 'events' && !input.bookmakers.length) throw new ApiError(`The bookmakers input is required for ${input.mode} mode, for example "Bet365,Unibet". Use bookmakers selected on your plan.`);
 
-    log.info(`Fetching ${input.status} ${input.sport}${input.league ? `/${input.league}` : ''} odds from ${input.bookmakers.join(', ')}${input.markets.length ? ` for ${input.markets.join(', ')}` : ' for all markets'}`);
+    log.info(`Running ${input.mode} mode for ${input.status} ${input.sport}${input.league ? `/${input.league}` : ''}${input.bookmakers.length ? ` from ${input.bookmakers.join(', ')}` : ''}${input.mode === 'events' ? '' : (input.markets.length ? ` for ${input.markets.join(', ')}` : ' for all markets')}`);
 
-    const events = await listEvents(input);
-    log.info(`Found ${events.length} events.`);
-    const currentRows = events.length ? await saveCurrentOdds(input, events) : 0;
-    log.info(`Saved ${currentRows} current odds rows.`);
-
-    let closingRows = 0;
-    if (input.includeClosingLines) {
-        closingRows = await saveClosingLines(input, events);
-        log.info(`Saved ${closingRows} closing line rows from the last ${input.closingLinesDays} days.`);
-    }
-
-    const total = currentRows + closingRows;
-    await Actor.exit(`Saved ${total} rows for ${events.length} events${input.includeClosingLines ? ` (${closingRows} closing line rows)` : ''}.`);
+    const count = await MODES[input.mode](input);
+    log.info(`Saved ${count} rows to the dataset.`);
+    await Actor.exit(`Saved ${count} rows.`);
 } catch (err) {
     if (err instanceof ApiError) await Actor.fail(err.message);
     else await Actor.fail(`Unexpected error: ${err.message}`);
